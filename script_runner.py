@@ -3,9 +3,7 @@ import requests
 import subprocess
 import sys
 
-@click.command()
-@click.argument('url')
-def run(url):
+def run_script(url):
     """Run a Python or Bash script from a URL."""
     try:
         response = requests.get(url)
@@ -28,5 +26,10 @@ def run(url):
     except Exception as e:
         print(f"Error running the script: {e}", file=sys.stderr)
 
+@click.command()
+@click.argument('url')
+def cli(url):
+    run_script(url)
+
 if __name__ == '__main__':
-    run()
+    cli()
