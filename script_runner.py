@@ -11,7 +11,7 @@ def is_url(string):
     return string.startswith(('http://', 'https://'))
 
 def download_script(url):
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.sh') as temp_file:
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.py') as temp_file:
         with urllib.request.urlopen(url) as response:
             content = response.read().decode('utf-8')
             temp_file.write(content)
@@ -27,7 +27,7 @@ def main():
     try:
         if is_url(args.script_name):
             script_path = download_script(args.script_name)
-            command = ["bash", script_path] + args.script_args
+            command = ["python", script_path] + args.script_args
         else:
             script_path = args.script_name
             if script_path.endswith('.py'):
