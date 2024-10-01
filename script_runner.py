@@ -4,8 +4,11 @@ import argparse
 import urllib.request
 import tempfile
 import os
+import logging
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def is_url(string):
     return string.startswith(('http://', 'https://'))
@@ -16,6 +19,7 @@ def download_script(url):
         with urllib.request.urlopen(url) as response:
             content = response.read().decode('utf-8')
             temp_file.write(content)
+        logging.debug(f"Downloaded script from {url} to {temp_file.name}")
         return temp_file.name
 
 def main():
@@ -39,9 +43,11 @@ def main():
             else:
                 command = ["bash", script_path] + args.script_args
 
+        logging.debug(f"Executing command: {' '.join(command)}")
         subprocess.run(command, check=True)
 
         if is_url(args.script_name):
+            logging.debug(f"Removing temporary file: {script_path}")
             os.unlink(script_path)  # Remove the temporary file
 
     except subprocess.CalledProcessError as e:
