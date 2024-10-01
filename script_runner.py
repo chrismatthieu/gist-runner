@@ -5,6 +5,7 @@ import urllib.request
 import tempfile
 import os
 import logging
+import threading
 
 VERSION = "1.0.2"
 
@@ -21,6 +22,14 @@ def download_script(url):
             temp_file.write(content)
         logging.debug(f"Downloaded script from {url} to {temp_file.name}")
         return temp_file.name
+
+def run_script(command):
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running script: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Run a Python script or shell script from file or URL with arguments.")
@@ -44,15 +53,22 @@ def main():
                 command = ["bash", script_path] + args.script_args
 
         logging.debug(f"Executing command: {' '.join(command)}")
-        subprocess.run(command, check=True)
+        
+        # Run the script in a separate thread
+        script_thread = threading.Thread(target=run_script, args=(command,))
+        script_thread.start()
+
+        # Get and print the PID
+        pid = os.getpid()
+        print(f"Script running in thread. Process ID: {pid}")
+
+        # Wait for the thread to complete
+        script_thread.join()
 
         if is_url(args.script_name):
             logging.debug(f"Removing temporary file: {script_path}")
             os.unlink(script_path)  # Remove the temporary file
 
-    except subprocess.CalledProcessError as e:
-        print(f"Error running script: {e}")
-        sys.exit(1)
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
