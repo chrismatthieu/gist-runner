@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/zsh
 python3 script_runner.py "$@"
