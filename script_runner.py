@@ -65,6 +65,8 @@ def main():
         # Wait for the thread to complete
         script_thread.join()
 
+        print(f"Script execution completed.")
+
         if is_url(args.script_name):
             logging.debug(f"Removing temporary file: {script_path}")
             os.unlink(script_path)  # Remove the temporary file
