@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+import click
+import requests
+import subprocess
+import sys
+
+def run_script(url):
+    """Fetch a script from a URL and run it using bash or python."""
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        content = response.text
+
+        if url.endswith('.py'):
+            # Run Python script
+            result = subprocess.run([sys.executable, '-c', content], capture_output=True, text=True, check=True)
+        elif url.endswith('.sh'):
+            # Run Bash script
+            result = subprocess.run(['bash', '-c', content], capture_output=True, text=True, check=True)
+        else:
+            print(f"Unsupported file type. URL must end with .py or .sh", file=sys.stderr)
+            sys.exit(1)
+
+        print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+
+    except requests.RequestException as e:
+        print(f"Error fetching the script: {e}", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running the script: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@click.command()
+@click.argument('url')
+def cli(url):
+    run_script(url)
+
+if __name__ == '__main__':
+    cli()
