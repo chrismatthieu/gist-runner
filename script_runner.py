@@ -58,9 +58,9 @@ def main():
         script_thread = threading.Thread(target=run_script, args=(command,))
         script_thread.start()
 
-        # Get and print the PID
+        # Get and print only the PID
         pid = os.getpid()
-        print(f"Script running in thread. Process ID: {pid}")
+        print(pid)
 
         # Wait for the thread to complete
         script_thread.join()
